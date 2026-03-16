@@ -16,6 +16,18 @@ This note is the broad planning view for Spyre + vLLM work across:
 
 This note is intentionally broader than the in-tree research/RFC documents. It is meant to help decide priorities, validation order, and where to watch for external changes.
 
+## Working Links
+
+- [Live tracker](./LIVE_TRACKER.md)
+- Working research draft in `toddllm/vllm-spyre`:
+  [spyre-kv-offload-research.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-research.md)
+- Working RFC draft in `toddllm/vllm-spyre`:
+  [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
+
+This repo is intended to be the higher-level tracking/meta layer. Lower-level
+RFCs, research notes, PRs, and implementation details should continue to live
+in the most relevant source repo and then get linked here.
+
 ## Naming
 
 To keep the discussion clear, this note uses the following names consistently.
