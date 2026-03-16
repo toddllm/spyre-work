@@ -1,0 +1,39 @@
+:root {
+  --spyre-page-pad: 24px;
+}
+
+.navbar > .container,
+body > .container {
+  max-width: none !important;
+  width: 100% !important;
+  padding-left: var(--spyre-page-pad);
+  padding-right: var(--spyre-page-pad);
+}
+
+@media (min-width: 1200px) {
+  body > .container > .row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  body > .container > .row > .col-md-3 {
+    flex: 0 0 17%;
+    max-width: 17%;
+  }
+
+  body > .container > .row > .col-md-9 {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+}
+
+.col-md-9 {
+  overflow-x: visible;
+}
+
+.col-md-9 pre {
+  max-width: none;
+  overflow-x: visible;
+}

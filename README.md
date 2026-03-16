@@ -1,88 +1,25 @@
 # Spyre vLLM Big Picture
 
-Status: Working note
-
 Last updated: 2026-03-16
 
-## Purpose
+<details markdown="1">
+<summary><strong>Purpose</strong></summary>
+
 
 This note is the broad planning view for Spyre + vLLM work across:
 
-- the current `vllm_spyre` stack
-- the emerging `vllm_spyre_next` stack
+- the current `vllm_spyre` path
+- `vllm-spyre-next` / the new stack
 - KV reuse / KV offload / P-D disaggregation
 - multi-Spyre and distributed support
-- the transition from the current compiler/runtime contracts to the next ones
+- the transition from the current compiler/runtime contract family to the
+  future torch-spyre compiler/backend direction
 
-This note is intentionally broader than the in-tree research/RFC documents. It is meant to help decide priorities, validation order, and where to watch for external changes.
+This note is intentionally broader than the in-tree research/RFC documents. It
+is meant to help decide priorities, validation order, and where to watch for
+external changes.
 
-## Working Links
-
-- [Live tracker](./LIVE_TRACKER.md)
-- Working research draft in `toddllm/vllm-spyre`:
-  [spyre-kv-offload-research.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-research.md)
-- Working RFC draft in `toddllm/vllm-spyre`:
-  [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
-
-This repo is intended to be the higher-level tracking/meta layer. Lower-level
-RFCs, research notes, PRs, and implementation details should continue to live
-in the most relevant source repo and then get linked here.
-
-## Naming
-
-To keep the discussion clear, this note uses the following names consistently.
-
-- Primary labels for today's path:
-  - `current Spyre software stack`
-  - `current design point`
-  - `current vllm-spyre path`
-  - shorthand `current stack` is acceptable once the context is already clear
-  - avoid leading with `old stack` unless mirroring someone else's wording
-
-- Working meaning of the current Spyre software stack:
-  - `vllm_spyre`
-  - custom `SpyrePlatform`, scheduler, worker, and model runner
-  - FMS model code and FMS attention path
-  - the current workaround-heavy integration surface
-  - the current SendNN / DeepTools style execution path
-
-- Primary labels for the future path:
-  - `vllm-spyre-next`
-  - `new stack`
-  - `compile-native path` or `Inductor-native path` when the compiler/runtime
-    distinction matters
-
-- Working meaning of `vllm-spyre-next` / `new stack`:
-  - intended to consume upstream vLLM modeling code directly
-  - intended to rely more deeply on `torch-spyre` for the
-    device/runtime/compiler path
-  - intended to reduce dependency on FMS
-  - intended to become the long-term home for compile-native solutions to
-    current-path limitations
-
-- When discussing the lower substrate, prefer:
-  - `current compiler/runtime contract family`
-  - `future compiler/runtime contract direction`
-
-- Working meaning of the current compiler/runtime contract family:
-  - the compiler/runtime path underneath the current Spyre software stack
-  - today this still revolves around the existing DeepTools-oriented contracts
-  - on the torch-spyre side this is still represented by `SuperDSC-Bundle` +
-    `SpyreCode` / `JobPlan`
-
-- Working meaning of the future compiler/runtime contract direction:
-  - the direction torch-spyre is moving toward after the current
-    `SuperDSC-Bundle` / `SpyreCode` interface
-  - represented publicly by the `KTIR` direction
-
-The important distinction is:
-
-- `current Spyre software stack` vs `vllm-spyre-next` is a `vllm-spyre`
-  plugin and execution-shape question
-- `current compiler/runtime contract family` vs `future compiler/runtime
-  contract direction` is a `torch-spyre` compiler/runtime question
-
-Those transitions are related, but they are not the same transition.
+</details>
 
 ## Where We Have Been
 
@@ -109,11 +46,11 @@ The `vllm-spyre-next` direction exists because those assumptions are changing:
 - the torch-spyre runtime/compiler surface is being reorganized in ways that
   should make a thinner vLLM plugin more plausible over time
 
-## Architecture Snapshot: Current Stack
+## Architecture Snapshot: Current Spyre Software Stack
 
 ```text
-                      CURRENT STACK / OLD STACK
-                   (vllm_spyre + FMS + SendNN path)
+                CURRENT SPYRE SOFTWARE STACK
+            (current vllm-spyre path + FMS + SendNN)
 
   User / OpenAI API / LLM.generate
                  |
@@ -142,12 +79,10 @@ The `vllm-spyre-next` direction exists because those assumptions are changing:
                  v
           torch.compile (Dynamo level)
                  |
-        +--------+---------+
-        |                  |
-        v                  v
-     sendnn             inductor
-        |
-        v
+                 v
+              sendnn
+                 |
+                 v
    DeepTools / current runtime
         |
         v
@@ -161,12 +96,13 @@ Properties of this design point:
 - FMS dependency
 - no native reuse of upstream vLLM modeling code
 - KV connector integration has to be added around the worker/model-runner seam
+- the current AIU execution path is `torch.compile -> sendnn`
 
-## Architecture Snapshot: Next Stack
+## Architecture Snapshot: vllm-spyre-next / New Stack
 
 ```text
-                        NEXT STACK / SPYRE-NEXT
-          (vllm_spyre_next + torch-spyre + upstream vLLM modeling)
+                  VLLM-SPYRE-NEXT / NEW STACK
+          (compile-native path + upstream modeling + torch-spyre)
 
   User / OpenAI API / LLM.generate
                  |
@@ -210,8 +146,8 @@ Properties of this design point:
       current compiler contract today:
         SuperDSC-Bundle -> SpyreCode / JobPlan
                  |
-      future compiler contract later:
-                   KTIR
+      future torch-spyre compiler/backend direction:
+        broader `backend="inductor"` path
                  |
                  v
                 AIU
@@ -224,12 +160,12 @@ Properties of this design point:
 - much more dependent on torch-spyre runtime/compiler maturity
 - makes multi-Spyre and distributed support much more central
 
-## KV Reuse / KV Offload / PD Disagg: Current Stack
+## KV Reuse / KV Offload / P-D Disaggregation on the Current Spyre Software Stack
 
-### 1. Current-stack local KV reuse / offload direction
+### 1. Current path: local KV reuse / offload direction
 
 ```text
-   current stack request
+   current vllm-spyre path request
          |
          v
    current scheduler emits
@@ -255,10 +191,10 @@ The important point is that the seam is worker-side and staging-based.
 That is a workable near-term seam, but it is not yet the same thing as a
 native vLLM offload backend.
 
-### 2. Current-stack P-D disaggregation direction
+### 2. Current path: P-D disaggregation direction
 
 ```text
- Prefill node (current stack)           Decode node (current stack)
+ Prefill node (current vllm-spyre path) Decode node (current vllm-spyre path)
  +---------------------------+          +---------------------------+
  | vllm_spyre scheduler/     |          | vllm_spyre scheduler/     |
  | worker/model runner       |          | worker/model runner       |
@@ -276,16 +212,16 @@ This is the direction suggested by:
 - upstream vLLM connector / PD-disagg / NIXL work
 - the [Spyre KV connector epic in `vllm-spyre`](https://github.com/vllm-project/vllm-spyre/issues/745)
 
-## KV Reuse / KV Offload / PD Disagg: Next Stack
+## KV Reuse / KV Offload / P-D Disaggregation on vllm-spyre-next
 
-### 3. Next-stack target shape
+### 3. New stack target shape
 
 ```text
             upstream scheduler / connector / HMA / PD logic
                                |
                                v
                  +-------------------------------+
-                 | vllm_spyre_next worker/model  |
+                 | vllm-spyre-next worker/model  |
                  | runner on torch-spyre         |
                  +-------------------------------+
                                |
@@ -306,7 +242,7 @@ Why this matters:
 
 - the same upstream connector family could potentially cover both local
   offload and P-D disaggregation
-- but that only becomes realistic once the next stack can run paged attention
+- but that only becomes realistic once `vllm-spyre-next` can run paged attention
   and KV-carrying vLLM model code natively on torch-spyre
 
 ## Transition Map
@@ -314,37 +250,37 @@ Why this matters:
 ```text
                     WHAT WE CAN PROVE FIRST
 
-  Track A: current stack / current compiler stack
-  ----------------------------------------------
+  Track A: current vllm-spyre path / current contract family
+  ----------------------------------------------------------
   prove connector correctness and AIU benefit now
       |
       +--> in-memory reuse on AIU
-      +--> current-stack offload experiments
-      +--> current-stack P-D disagg experiments
+      +--> current path offload experiments
+      +--> current path P-D disaggregation experiments
 
 
-  Track B: next stack / current-to-future compiler transition
-  -----------------------------------------------------------
+  Track B: vllm-spyre-next / evolving contract direction
+  ------------------------------------------------------
   reduce plugin footprint and move onto torch-spyre substrate
       |
       +--> CPU/dev-test readiness
       +--> wrapped layers + attention backend
       +--> upstream test harness
       +--> torch-spyre device/runtime/compiler prerequisites
-      +--> AIU bring-up on next stack
+      +--> AIU bring-up on vllm-spyre-next
 
 
   Convergence
   -----------
-  once next stack has:
+  once vllm-spyre-next has:
     - upstream model execution
     - paged attention backend
     - device tensors + copy/stream support
     - distributed / multi-Spyre support
     - enough compiler/runtime maturity
 
-  then KV offload / P-D disagg should migrate toward the next stack and rely
-  more directly on upstream vLLM connector abstractions.
+  then KV offload / P-D disaggregation should migrate toward the new stack and
+  rely more directly on upstream vLLM connector abstractions.
 ```
 
 ## What We Have Actually Tested
@@ -359,14 +295,14 @@ For the current KV-reuse prototype:
 - local validation proves connector logic and regression safety, but not real
   transport or AIU performance
 
-For `vllm_spyre_next`:
+For `vllm-spyre-next`:
 
 - the public work is currently still mostly at CPU/dev-test readiness and
   layer-by-layer enablement
-- there is not yet a full AIU-backed end-to-end KV offload path on the next
-  stack
+- there is not yet a full AIU-backed end-to-end KV offload path on
+  `vllm-spyre-next`
 
-### AIU: current stack
+### AIU: current vllm-spyre path
 
 Hardware-backed validation already completed for the current prototype path:
 
@@ -377,12 +313,15 @@ Hardware-backed validation already completed for the current prototype path:
 
 Observed benchmark result from the AIU-backed offline benchmark:
 
-- exact replay: about `1.205x` speedup, about `17.0%` lower request latency
-- partial replay: about `1.179x` speedup, about `15.2%` lower request latency
+- exact-prefix replay (rerun the same prompt): about `1.205x` speedup, about
+  `17.0%` lower request latency
+- partial-prefix replay (rerun a prompt with the same prefix and a different
+  suffix): about `1.179x` speedup, about `15.2%` lower request latency
 
 Important caveat:
 
-- this is still a single-process offline path using the current stack
+- this is still a single-process offline path using the current vllm-spyre
+  path
 - it proves reuse benefit, not yet full serving-path TTFT or multi-node P-D
   behavior
 - these measurements were gathered before the recent repo sync work on the
@@ -390,11 +329,11 @@ Important caveat:
   re-run on the target pinned environment before becoming the standing
   reference point
 
-### AIU: next stack
+### AIU: vllm-spyre-next
 
 Not yet validated for end-to-end KV offload / PD-disagg scenarios.
 
-The public `Spyre-Next` workstream still appears to be in the phase of:
+The public `vllm-spyre-next` workstream still appears to be in the phase of:
 
 - CPU/dev-test readiness
 - wrapped layer bring-up
@@ -404,7 +343,7 @@ The public `Spyre-Next` workstream still appears to be in the phase of:
 
 ## Near-Term Validation Order
 
-### Phase 1: continue with current stack on AIU
+### Phase 1: continue with the current vllm-spyre path on AIU
 
 This is the right place to keep proving value right now because the seam
 already exists and hardware validation is already working.
@@ -414,11 +353,11 @@ Recommended order:
 1. keep broadening the current AIU benchmark matrix
 2. add clearer scheduler-side observability
 3. move from offline latency into serving-path / TTFT-oriented measurement
-4. test the next transport-backed step on the current stack if needed
+4. test the next transport-backed step on the current path if needed
 
-### Phase 2: keep next stack moving, but do not force offload onto it too early
+### Phase 2: keep vllm-spyre-next moving, but do not force offload onto it too early
 
-The next stack should be treated as the long-term convergence target, but not
+The new stack should be treated as the long-term convergence target, but not
 as the place to prove the first AIU offload win.
 
 Recommended order:
@@ -438,21 +377,21 @@ Recommended order:
 Multi-Spyre is not only about tensor parallel inference. It matters because it
 is the shared foundation for:
 
-- tensor parallel model execution on the next stack
+- tensor parallel model execution on `vllm-spyre-next`
 - realistic decode-node scaling in P-D disaggregation
 - collective operations used by vLLM model execution
 - eventually, more advanced transport and topology-aware data movement
 
-### Current stack vs next stack
+### Current vllm-spyre path vs vllm-spyre-next
 
 ```text
- current stack multi-Spyre
- -------------------------
+ current vllm-spyre path multi-Spyre
+ -----------------------------------
  vllm_spyre + current runtime already has TP-oriented operational paths
  and topology-aware pod scheduling guidance
 
- next stack multi-Spyre
- ----------------------
+ vllm-spyre-next multi-Spyre
+ ---------------------------
  must be built on torch-spyre's native distributed/runtime substrate:
    - distributed backend
    - stream support
@@ -465,7 +404,7 @@ is the shared foundation for:
 - [RFC 0099 / PR #816](https://github.com/torch-spyre/torch-spyre/pull/816)
   - multi-Spyre distributed backend via `spyreccl`
   - explicit `torch.distributed` backend story for Spyre
-  - directly relevant for next-stack TP and collective support
+  - directly relevant for `vllm-spyre-next` TP and collective support
 
 - [PR #918](https://github.com/torch-spyre/torch-spyre/pull/918)
   - stream support for torch-spyre
@@ -473,11 +412,12 @@ is the shared foundation for:
 
 - [PR #1007](https://github.com/torch-spyre/torch-spyre/pull/1007)
   - graph-free copy via runtime `copyAsync`
-  - directly relevant to any serious offload/transport story on the next stack
+  - directly relevant to any serious offload/transport story on
+    `vllm-spyre-next`
 
 - [RFC 0248 / PR #868](https://github.com/torch-spyre/torch-spyre/pull/868)
   - `SuperDSC-Bundle` frontend/backend contract
-  - important for understanding the current compiler-stack boundary
+  - important for understanding the current compiler/runtime contract boundary
 
 - [issue #277](https://github.com/torch-spyre/torch-spyre/issues/277) and
   [PR #1010](https://github.com/torch-spyre/torch-spyre/pull/1010)
@@ -487,12 +427,13 @@ is the shared foundation for:
 
 - [issue #682](https://github.com/torch-spyre/torch-spyre/issues/682)
   - `KTIR`
-  - signals the future compiler contract replacing `SuperDSC-Bundle`
+  - one public thread within the broader future torch-spyre
+    compiler/backend direction
 
 - [issue #601](https://github.com/torch-spyre/torch-spyre/issues/601) and
   [PR #1049](https://github.com/torch-spyre/torch-spyre/pull/1049)
   - profiling toolkit, Kineto PrivateUse1 integration, FFDC, HTA direction
-  - useful because once the next stack becomes real, debugging and profiling
+  - useful because once `vllm-spyre-next` becomes real, debugging and profiling
     offload / PD / multi-card behavior will depend on this tooling
 
 ### PyTorch upstream context
@@ -513,7 +454,7 @@ is the shared foundation for:
 
 - PyTorch dev-discuss:
   [IBM Spyre Accelerator: PyTorch Enabling Status and Feature Plan - 1H 2026](https://dev-discuss.pytorch.org/t/ibm-spyre-accelerator-pytorch-enabling-status-and-feature-plan-1h-2026/3319)
-  - strongest public roadmap statement for the next stack and torch-spyre
+  - strongest public roadmap statement for `vllm-spyre-next` and torch-spyre
     substrate
   - especially important because it makes the multi-card plan concrete:
     compiled functional collectives first, `torch.distributed` migration
@@ -526,11 +467,11 @@ is the shared foundation for:
 For the immediate KV-offload roadmap:
 
 - multi-Spyre is not the first proof point
-- but it is a prerequisite for the serious next-stack future
+- but it is a prerequisite for the serious `vllm-spyre-next` future
 - so it should be tracked as a first-class dependency, not a side topic
 - the March 2026 PyTorch roadmap thread makes this more explicit: multi-card
   support is a staged enablement effort on top of the PyTorch-native path, not
-  something that will appear "for free" once the next stack can serve on one
+  something that will appear "for free" once `vllm-spyre-next` can serve on one
   card
 
 ## Public Work To Watch
@@ -543,10 +484,10 @@ For the immediate KV-offload roadmap:
 - [issue #647](https://github.com/vllm-project/vllm-spyre/issues/647) contiguous KV-cache attention backend using torch-spyre
 - [issue #689](https://github.com/vllm-project/vllm-spyre/issues/689) layer-wise split execution in torch-spyre
 - [issue #666](https://github.com/vllm-project/vllm-spyre/issues/666) run vLLM modeling code instead of FMS modeling code
-- [PR #798](https://github.com/vllm-project/vllm-spyre/pull/798) custom attention backend for `Spyre-Next`
-- [PR #826](https://github.com/vllm-project/vllm-spyre/pull/826) update vLLM and torch-spyre for `Spyre-Next`
-- [PR #836](https://github.com/vllm-project/vllm-spyre/pull/836) wrapped embedding layer for `Spyre-Next`
-- [PR #837](https://github.com/vllm-project/vllm-spyre/pull/837) upstream tests framework and RMSNorm tests for `Spyre-Next`
+- [PR #798](https://github.com/vllm-project/vllm-spyre/pull/798) custom attention backend for `vllm-spyre-next`
+- [PR #826](https://github.com/vllm-project/vllm-spyre/pull/826) update vLLM and torch-spyre for `vllm-spyre-next`
+- [PR #836](https://github.com/vllm-project/vllm-spyre/pull/836) wrapped embedding layer for `vllm-spyre-next`
+- [PR #837](https://github.com/vllm-project/vllm-spyre/pull/837) upstream tests framework and RMSNorm tests for `vllm-spyre-next`
 
 ### upstream vLLM
 
@@ -569,6 +510,8 @@ For the immediate KV-offload roadmap:
 - [PR #1011](https://github.com/torch-spyre/torch-spyre/pull/1011) tensor memory access analysis
 - [PR #868](https://github.com/torch-spyre/torch-spyre/pull/868) SuperDSC-Bundle specification
 - [issue #682](https://github.com/torch-spyre/torch-spyre/issues/682) KTIR
+  - relevant as one part of the broader future torch-spyre
+    compiler/backend direction
 - [issue #183](https://github.com/torch-spyre/torch-spyre/issues/183) eager codegen through torch.compile
 - [issue #200](https://github.com/torch-spyre/torch-spyre/issues/200) new allocator for VF mode
 
@@ -576,24 +519,121 @@ For the immediate KV-offload roadmap:
 
 ### Highest priority now
 
-1. keep proving KV reuse / offload value on AIU with the current stack
+1. keep proving KV reuse / offload value on AIU with the current vllm-spyre
+   path
 2. keep refining the benchmark and observability story
 3. keep tracking upstream connector / PD-disagg / HMA work in vLLM
 
 ### Strategic priority
 
-1. track `Spyre-Next` as the long-term landing zone
+1. track `vllm-spyre-next` as the long-term landing zone
 2. track torch-spyre multi-Spyre / stream / copy / compiler-runtime work as
    explicit prerequisites
-3. do not force the next stack to carry offload too early just because it is
+3. do not force the new stack to carry offload too early just because it is
    the more elegant end state
 
-### Discussion items for next review
+## Topic Maps
 
-- Which current-stack AIU validations are still missing before transport work?
-- What is the minimum next-stack milestone that makes KV-offload experiments
-  reasonable there?
-- Which upstream vLLM connector / PD-disagg changes are most important to
-  mirror in our local design language?
-- How much of the current AIU benchmark story should be re-run after each
-  major vLLM / torch-spyre version bump?
+These topic directories are the intended higher-level landing zones for
+cross-repo conversations. Each starts from first principles and then narrows
+toward the current `vllm_spyre` path and `vllm-spyre-next`.
+
+- [Topic index](./topics/README.md)
+  - grouped view across architecture, KV/data movement, and scale/validation
+- [Current Path and vllm-spyre-next](./topics/current-vs-next-stack/README.md)
+  - umbrella for the architectural transition itself
+- [Execution and Attention](./topics/execution-and-attention/README.md)
+  - umbrella for where execution and live KV ownership actually sit
+- [Compiler/Runtime Contracts](./topics/compiler-runtime-contracts/README.md)
+  - umbrella for the lower substrate contract changes underneath both paths
+- [SuperDSC and Current Contracts](./topics/superdsc-and-current-contracts/README.md)
+  - deeper map of the current contract family under today’s AIU path
+- [Spyre Device and Inductor](./topics/spyre-device-and-inductor/README.md)
+  - deeper map of the broader torch-spyre backend/device direction
+- [KTIR and Future IR](./topics/ktir-and-future-ir/README.md)
+  - deeper map of future IR / artifact questions inside that broader direction
+- [KV Reuse](./topics/kv-reuse/README.md)
+  - umbrella for reuse, with local KV reuse as the current concrete Spyre
+    focus
+- [KV Offload](./topics/kv-offload/README.md)
+  - umbrella for offload, with transport-backed local offload as the current
+    concrete Spyre focus
+- [Prefill/Decode Disaggregation](./topics/prefill-decode-disaggregation/README.md)
+  - umbrella for disaggregation, with KV transfer as the key enabling seam
+- [Multi-Spyre](./topics/multi-spyre/README.md)
+  - umbrella for multi-device and distributed maturity
+- [Validation and Proof Plan](./topics/validation-and-proof-plan/README.md)
+  - umbrella for how to stage and interpret proofs across topics
+
+## Working Links
+
+- [Live tracker](./LIVE_TRACKER.md)
+- [Topic index](./topics/README.md)
+- Working research draft in `toddllm/vllm-spyre`:
+  [spyre-kv-offload-research.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-research.md)
+- Working RFC draft in `toddllm/vllm-spyre`:
+  [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
+
+This repo is intended to be the higher-level tracking layer. Lower-level RFCs,
+research notes, PRs, and implementation details should continue to live in the
+most relevant source repo and then get linked here.
+
+## Naming
+
+To keep the discussion clear, this note uses the following names consistently.
+
+- Primary labels for today's path:
+  - `current Spyre software stack`
+  - `current design point`
+  - `current vllm-spyre path`
+  - shorthand `current path` is acceptable once the context is already clear
+  - avoid leading with `old stack` unless mirroring someone else's wording
+
+- Working meaning of the current Spyre software stack:
+  - `vllm_spyre`
+  - custom `SpyrePlatform`, scheduler, worker, and model runner
+  - FMS model code and FMS attention path
+  - the current workaround-heavy integration surface
+  - the current SendNN / DeepTools style execution path
+
+- Primary labels for the future path:
+  - `vllm-spyre-next`
+  - `new stack`
+  - `compile-native path` or `Inductor-native path` when the compiler/runtime
+    distinction matters
+
+- Working meaning of `vllm-spyre-next` / `new stack`:
+  - intended to consume upstream vLLM modeling code directly
+  - intended to rely more deeply on `torch-spyre` for the
+    device/runtime/compiler path
+  - intended to reduce dependency on FMS
+  - intended to become the long-term home for compile-native solutions to
+    limitations of the current path
+
+- When discussing the lower substrate, prefer:
+  - `current compiler/runtime contract family`
+  - `future torch-spyre compiler/backend direction`
+
+- Working meaning of the current compiler/runtime contract family:
+  - the compiler/runtime path underneath the current Spyre software stack
+  - today this still revolves around the existing DeepTools-oriented contracts
+  - on the torch-spyre side this is still represented by `SuperDSC-Bundle` +
+    `SpyreCode` / `JobPlan`
+
+- Working meaning of the future torch-spyre compiler/backend direction:
+  - the broader compiler/backend direction behind `torch.compile` with
+    `backend="inductor"` on torch-spyre
+  - this involves multiple lower-level changes under torch-spyre, including
+    but not limited to KTIR-related work
+  - from the `vllm-spyre` point of view, the important thing is the backend
+    and runtime shape exposed through torch-spyre, not any one internal
+    compiler artifact name
+
+The important distinction is:
+
+- `current Spyre software stack` vs `vllm-spyre-next` is a `vllm-spyre`
+  plugin and execution-shape question
+- `current compiler/runtime contract family` vs `future torch-spyre
+  compiler/backend direction` is a `torch-spyre` compiler/runtime question
+
+Those transitions are related, but they are not the same transition.

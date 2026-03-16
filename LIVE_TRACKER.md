@@ -1,10 +1,10 @@
 # Spyre Live Tracker
 
-Status: Tracking note
-
 Last updated: 2026-03-16
 
-## Purpose
+<details markdown="1">
+<summary><strong>Purpose</strong></summary>
+
 
 This file is the compact watch list for public work that is likely to change
 the shape of the Spyre + vLLM roadmap.
@@ -12,57 +12,76 @@ the shape of the Spyre + vLLM roadmap.
 It is intentionally more tactical than the
 [big-picture README](./README.md).
 
+Related topic maps:
+
+- [Topic index](./topics/README.md)
+- [Current Path and vllm-spyre-next](./topics/current-vs-next-stack/README.md)
+- [Execution and Attention](./topics/execution-and-attention/README.md)
+- [Compiler/Runtime Contracts](./topics/compiler-runtime-contracts/README.md)
+- [SuperDSC and Current Contracts](./topics/superdsc-and-current-contracts/README.md)
+- [Spyre Device and Inductor](./topics/spyre-device-and-inductor/README.md)
+- [KTIR and Future IR](./topics/ktir-and-future-ir/README.md)
+- [KV Reuse](./topics/kv-reuse/README.md)
+- [KV Offload](./topics/kv-offload/README.md)
+- [Prefill/Decode Disaggregation](./topics/prefill-decode-disaggregation/README.md)
+- [Multi-Spyre](./topics/multi-spyre/README.md)
+- [Validation and Proof Plan](./topics/validation-and-proof-plan/README.md)
+
+</details>
+
 ## vllm-spyre
 
-### Next-stack direction
+### vllm-spyre-next direction
 
 - [#639 `[RFC] vllm-spyre-next`](https://github.com/vllm-project/vllm-spyre/issues/639)
   - Current architecture rationale and target end-state for reducing plugin
     footprint.
-  - Strongest public statement of old-stack vs next-stack motivation.
+  - Strongest public statement of current path vs new stack motivation.
 
 - [#761 `[Epic] vllm-spyre-next dev/test readiness`](https://github.com/vllm-project/vllm-spyre/issues/761)
-  - Indicates that `Spyre-Next` is still in basic readiness and packaging/test
-    maturation, not yet complete serving-path maturity.
+  - Indicates that `vllm-spyre-next` is still in basic readiness and
+    packaging/test maturation, not yet complete serving-path maturity.
 
 - [#664 `Build image with old stack and new stack side-by-side`](https://github.com/vllm-project/vllm-spyre/issues/664)
   - Important operationally because the transition period likely requires both
-    stacks to coexist for some time.
+    paths to coexist for some time.
 
 ### Attention / model execution
 
 - [#666 `run vLLM instead of fms modeling code (CPU-only)`](https://github.com/vllm-project/vllm-spyre/issues/666)
-  - Key next-stack milestone: remove FMS dependency on the execution side.
+  - Key `vllm-spyre-next` milestone: remove FMS dependency on the execution
+    side.
 
 - [#647 `Contiguous KV-cache implementation of AttentionBackend using torch-spyre`](https://github.com/vllm-project/vllm-spyre/issues/647)
   - "Proof of life" backend before fully paged attention.
 
 - [#648 `Paged KV-cache implementation of AttentionBackend using torch-spyre`](https://github.com/vllm-project/vllm-spyre/issues/648)
-  - Critical next-stack prerequisite for serious KV/offload work.
+  - Critical `vllm-spyre-next` prerequisite for serious KV/offload work.
 
 - [#689 `Layer-wise split-execution of vLLM in torch-spyre`](https://github.com/vllm-project/vllm-spyre/issues/689)
   - Useful transition concept: mixed CPU/Spyre execution instead of full
     cutover.
 
-### Current-stack KV connector / offload direction
+### Current vllm-spyre path: KV connector / offload direction
 
 - [#745 `[Epic] Develop KVCacheConnector for Spyre`](https://github.com/vllm-project/vllm-spyre/issues/745)
-  - Most directly aligned issue for old-stack offload / llm-d / PD-disagg.
+  - Most directly aligned issue for the current path offload / llm-d /
+    PD-disaggregation.
 
 ### Active PRs
 
 - [#798 `Integrated custom attention backend`](https://github.com/vllm-project/vllm-spyre/pull/798)
-  - Attention backend skeleton in `Spyre-Next`.
+  - Attention backend skeleton in `vllm-spyre-next`.
 
 - [#826 `Update vllm and torch-spyre`](https://github.com/vllm-project/vllm-spyre/pull/826)
-  - Important because version drift here can change what is feasible in the
-    next stack.
+  - Important because version drift here can change what is feasible on
+    `vllm-spyre-next`.
 
 - [#836 `Wrapped Embedding layer for spare`](https://github.com/vllm-project/vllm-spyre/pull/836)
-  - Example of wrapped upstream layer strategy in the next stack.
+  - Example of wrapped upstream layer strategy on `vllm-spyre-next`.
 
 - [#837 `RMSNorm tests and upstream tests framework`](https://github.com/vllm-project/vllm-spyre/pull/837)
-  - Relevant because it improves next-stack compatibility signal.
+  - Relevant because it improves `vllm-spyre-next` compatibility signal.
 
 ## upstream vLLM
 
@@ -111,7 +130,7 @@ It is intentionally more tactical than the
 
 - [#816 `Multi-Spyre Device Support Framework`](https://github.com/torch-spyre/torch-spyre/pull/816)
   - Adds `spyreccl` and a distributed backend story.
-  - Highest-value public thread for next-stack multi-Spyre.
+  - Highest-value public thread for `vllm-spyre-next` multi-Spyre.
 
 - [issue #99 `Multi-Device Support Investigation`](https://github.com/torch-spyre/torch-spyre/issues/99)
   - Broader tracking issue behind the same theme.
@@ -148,7 +167,7 @@ It is intentionally more tactical than the
 
 - [issue #601](https://github.com/torch-spyre/torch-spyre/issues/601) /
   [#1049 `Spyre Profiling Toolkit`](https://github.com/torch-spyre/torch-spyre/pull/1049)
-  - Important for eventual AIU-side visibility once the next stack starts
+  - Important for eventual AIU-side visibility once `vllm-spyre-next` starts
     carrying meaningful workloads.
 
 ### PyTorch integration foundation
@@ -164,7 +183,7 @@ It is intentionally more tactical than the
 
 - PyTorch dev-discuss:
   [IBM Spyre Accelerator: PyTorch Enabling Status and Feature Plan - 1H 2026](https://dev-discuss.pytorch.org/t/ibm-spyre-accelerator-pytorch-enabling-status-and-feature-plan-1h-2026/3319)
-  - strongest public roadmap statement for the next-stack / torch-spyre
+  - strongest public roadmap statement for `vllm-spyre-next` / torch-spyre
     direction
   - especially relevant to multi-Spyre because it lays out the staged plan:
     compiled functional collectives first, then `torch.distributed`, then
@@ -194,12 +213,3 @@ It is intentionally more tactical than the
 - `torch-spyre` PRs [#816](https://github.com/torch-spyre/torch-spyre/pull/816), [#918](https://github.com/torch-spyre/torch-spyre/pull/918), [#1007](https://github.com/torch-spyre/torch-spyre/pull/1007), [#1049](https://github.com/torch-spyre/torch-spyre/pull/1049)
 - any movement on [issue #682 (`KTIR`)](https://github.com/torch-spyre/torch-spyre/issues/682)
 - the [PyTorch dev-discuss roadmap thread for Spyre in 1H 2026](https://dev-discuss.pytorch.org/t/ibm-spyre-accelerator-pytorch-enabling-status-and-feature-plan-1h-2026/3319)
-
-## Questions To Keep In Mind
-
-- When does next-stack attention maturity become good enough to justify AIU
-  offload experiments there?
-- Which upstream vLLM connector changes should we mirror in our local naming
-  and architecture descriptions now, to avoid churn later?
-- Which torch-spyre runtime/compiler milestones are strictly required before
-  next-stack PD-disagg or offload work becomes realistic?
