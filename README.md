@@ -32,35 +32,55 @@ in the most relevant source repo and then get linked here.
 
 To keep the discussion clear, this note uses the following names consistently.
 
-- `current stack` / `old stack`
-  - `vllm_spyre`
-  - custom `SpyrePlatform`, scheduler, worker, model runner
-  - FMS model code and FMS attention path
-  - `torch.compile` through the current Spyre integration path
-  - SendNN / DeepTools style execution path
+- Primary labels for today's path:
+  - `current Spyre software stack`
+  - `current design point`
+  - `current vllm-spyre path`
+  - shorthand `current stack` is acceptable once the context is already clear
+  - avoid leading with `old stack` unless mirroring someone else's wording
 
-- `current compiler stack`
-  - the compiler/runtime path underneath the current stack
+- Working meaning of the current Spyre software stack:
+  - `vllm_spyre`
+  - custom `SpyrePlatform`, scheduler, worker, and model runner
+  - FMS model code and FMS attention path
+  - the current workaround-heavy integration surface
+  - the current SendNN / DeepTools style execution path
+
+- Primary labels for the future path:
+  - `vllm-spyre-next`
+  - `new stack`
+  - `compile-native path` or `Inductor-native path` when the compiler/runtime
+    distinction matters
+
+- Working meaning of `vllm-spyre-next` / `new stack`:
+  - intended to consume upstream vLLM modeling code directly
+  - intended to rely more deeply on `torch-spyre` for the
+    device/runtime/compiler path
+  - intended to reduce dependency on FMS
+  - intended to become the long-term home for compile-native solutions to
+    current-path limitations
+
+- When discussing the lower substrate, prefer:
+  - `current compiler/runtime contract family`
+  - `future compiler/runtime contract direction`
+
+- Working meaning of the current compiler/runtime contract family:
+  - the compiler/runtime path underneath the current Spyre software stack
   - today this still revolves around the existing DeepTools-oriented contracts
   - on the torch-spyre side this is still represented by `SuperDSC-Bundle` +
     `SpyreCode` / `JobPlan`
 
-- `next stack` / `Spyre-Next`
-  - `vllm_spyre_next`
-  - intended to consume upstream vLLM modeling code directly
-  - intended to rely on `torch-spyre` for the device/runtime/compiler path
-  - intended to reuse more upstream vLLM scheduling / compilation behavior
-
-- `future compiler stack`
-  - the compiler/runtime path torch-spyre is moving toward after the current
+- Working meaning of the future compiler/runtime contract direction:
+  - the direction torch-spyre is moving toward after the current
     `SuperDSC-Bundle` / `SpyreCode` interface
   - represented publicly by the `KTIR` direction
 
 The important distinction is:
 
-- `current stack` vs `next stack` is a `vllm-spyre` plugin question
-- `current compiler stack` vs `future compiler stack` is a `torch-spyre`
-  compiler/runtime question
+- `current Spyre software stack` vs `vllm-spyre-next` is a `vllm-spyre`
+  plugin and execution-shape question
+- `current compiler/runtime contract family` vs `future compiler/runtime
+  contract direction` is a `torch-spyre` compiler/runtime question
 
 Those transitions are related, but they are not the same transition.
 
