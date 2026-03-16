@@ -254,7 +254,7 @@ This is the direction suggested by:
 
 - current worker-side bridge work in `vllm_spyre`
 - upstream vLLM connector / PD-disagg / NIXL work
-- the `vllm-spyre` issue about a Spyre KV connector for llm-d and P-D disagg
+- the [Spyre KV connector epic in `vllm-spyre`](https://github.com/vllm-project/vllm-spyre/issues/745)
 
 ## KV Reuse / KV Offload / PD Disagg: Next Stack
 
@@ -442,55 +442,57 @@ is the shared foundation for:
 
 ### Relevant torch-spyre work
 
-- `RFC 0099 / PR #816`
+- [RFC 0099 / PR #816](https://github.com/torch-spyre/torch-spyre/pull/816)
   - multi-Spyre distributed backend via `spyreccl`
   - explicit `torch.distributed` backend story for Spyre
   - directly relevant for next-stack TP and collective support
 
-- `PR #918`
+- [PR #918](https://github.com/torch-spyre/torch-spyre/pull/918)
   - stream support for torch-spyre
   - relevant for overlap, async operations, and future copy/collective work
 
-- `PR #1007`
+- [PR #1007](https://github.com/torch-spyre/torch-spyre/pull/1007)
   - graph-free copy via runtime `copyAsync`
   - directly relevant to any serious offload/transport story on the next stack
 
-- `RFC 0248`
+- [RFC 0248 / PR #868](https://github.com/torch-spyre/torch-spyre/pull/868)
   - `SuperDSC-Bundle` frontend/backend contract
   - important for understanding the current compiler-stack boundary
 
-- `RFC / issue 277` and `PR #1010`
+- [issue #277](https://github.com/torch-spyre/torch-spyre/issues/277) and
+  [PR #1010](https://github.com/torch-spyre/torch-spyre/pull/1010)
   - `SpyreCode` / `JobPlan`
   - important because future runtime execution, copies, and correction steps
     are modeled explicitly there
 
-- `issue 682`
+- [issue #682](https://github.com/torch-spyre/torch-spyre/issues/682)
   - `KTIR`
   - signals the future compiler contract replacing `SuperDSC-Bundle`
 
-- `issue 601` and `PR #1049`
+- [issue #601](https://github.com/torch-spyre/torch-spyre/issues/601) and
+  [PR #1049](https://github.com/torch-spyre/torch-spyre/pull/1049)
   - profiling toolkit, Kineto PrivateUse1 integration, FFDC, HTA direction
   - useful because once the next stack becomes real, debugging and profiling
     offload / PD / multi-card behavior will depend on this tooling
 
 ### PyTorch upstream context
 
-- `pytorch/pytorch#172154`
+- [pytorch/pytorch#172154](https://github.com/pytorch/pytorch/pull/172154)
   - `privateuse1` backend integration with Kineto
   - directly supports torch-spyre profiling integration
 
-- `pytorch/pytorch#176877`
+- [pytorch/pytorch#176877](https://github.com/pytorch/pytorch/issues/176877)
   - distributed support for OpenReg
   - the best public reference today for how an out-of-tree accelerator backend
     can integrate with `torch.distributed` in a maintainable way
 
-- `pytorch/pytorch#175954`
+- [pytorch/pytorch#175954](https://github.com/pytorch/pytorch/issues/175954)
   - decomposition-table RFC
   - relevant because out-of-tree backends like torch-spyre need stable ways to
     customize Inductor behavior without fragile monkey-patching
 
 - PyTorch dev-discuss:
-  `IBM Spyre Accelerator: PyTorch Enabling Status and Feature Plan - 1H 2026`
+  [IBM Spyre Accelerator: PyTorch Enabling Status and Feature Plan - 1H 2026](https://dev-discuss.pytorch.org/t/ibm-spyre-accelerator-pytorch-enabling-status-and-feature-plan-1h-2026/3319)
   - strongest public roadmap statement for the next stack and torch-spyre
     substrate
   - especially important because it makes the multi-card plan concrete:
@@ -515,40 +517,40 @@ For the immediate KV-offload roadmap:
 
 ### vllm-spyre
 
-- issue `#639` `[RFC] vllm-spyre-next`
-- issue `#745` `[Epic] Develop KVCacheConnector for Spyre`
-- issue `#648` paged KV-cache attention backend using torch-spyre
-- issue `#647` contiguous KV-cache attention backend using torch-spyre
-- issue `#689` layer-wise split execution in torch-spyre
-- issue `#666` run vLLM modeling code instead of FMS modeling code
-- PR `#798` custom attention backend for `Spyre-Next`
-- PR `#826` update vLLM and torch-spyre for `Spyre-Next`
-- PR `#836` wrapped embedding layer for `Spyre-Next`
-- PR `#837` upstream tests framework and RMSNorm tests for `Spyre-Next`
+- [issue #639: `[RFC] vllm-spyre-next`](https://github.com/vllm-project/vllm-spyre/issues/639)
+- [issue #745: `[Epic] Develop KVCacheConnector for Spyre`](https://github.com/vllm-project/vllm-spyre/issues/745)
+- [issue #648](https://github.com/vllm-project/vllm-spyre/issues/648) paged KV-cache attention backend using torch-spyre
+- [issue #647](https://github.com/vllm-project/vllm-spyre/issues/647) contiguous KV-cache attention backend using torch-spyre
+- [issue #689](https://github.com/vllm-project/vllm-spyre/issues/689) layer-wise split execution in torch-spyre
+- [issue #666](https://github.com/vllm-project/vllm-spyre/issues/666) run vLLM modeling code instead of FMS modeling code
+- [PR #798](https://github.com/vllm-project/vllm-spyre/pull/798) custom attention backend for `Spyre-Next`
+- [PR #826](https://github.com/vllm-project/vllm-spyre/pull/826) update vLLM and torch-spyre for `Spyre-Next`
+- [PR #836](https://github.com/vllm-project/vllm-spyre/pull/836) wrapped embedding layer for `Spyre-Next`
+- [PR #837](https://github.com/vllm-project/vllm-spyre/pull/837) upstream tests framework and RMSNorm tests for `Spyre-Next`
 
 ### upstream vLLM
 
-- PR `#35264` KV push from prefill to decode node using NIXL connector
-- PR `#35760` PD-disagg + speculative decoding acceptance tests
-- PR `#36687` support hybrid SSM-FA models in PD disaggregation
-- PR `#36957` heterogeneous TP in hybrid-model PD disaggregation
-- issue `#36780` RFC for hybrid SSM-FA NIXL connector support
-- PR `#37160` simple general CPU KV cache offloading
-- PRs `#36642`, `#36644`, `#36645`, `#35223`, `#36549`
+- [PR #35264](https://github.com/vllm-project/vllm/pull/35264) KV push from prefill to decode node using NIXL connector
+- [PR #35760](https://github.com/vllm-project/vllm/pull/35760) PD-disagg + speculative decoding acceptance tests
+- [PR #36687](https://github.com/vllm-project/vllm/pull/36687) support hybrid SSM-FA models in PD disaggregation
+- [PR #36957](https://github.com/vllm-project/vllm/pull/36957) heterogeneous TP in hybrid-model PD disaggregation
+- [issue #36780](https://github.com/vllm-project/vllm/issues/36780) RFC for hybrid SSM-FA NIXL connector support
+- [PR #37160](https://github.com/vllm-project/vllm/pull/37160) simple general CPU KV cache offloading
+- PRs [#36642](https://github.com/vllm-project/vllm/pull/36642), [#36644](https://github.com/vllm-project/vllm/pull/36644), [#36645](https://github.com/vllm-project/vllm/pull/36645), [#35223](https://github.com/vllm-project/vllm/pull/35223), [#36549](https://github.com/vllm-project/vllm/pull/36549)
   - HMA / multi-group / sliding-window / recovery / multi-connector plumbing
 
 ### torch-spyre
 
-- PR `#816` multi-Spyre device support framework
-- PR `#918` stream support
-- PR `#1007` graph-free copy
-- PR `#1049` profiling toolkit RFC
-- PR `#1010` SpyreCode / JobPlan alignment
-- PR `#1011` tensor memory access analysis
-- PR `#868` SuperDSC-Bundle specification
-- issue `#682` KTIR
-- issue `#183` eager codegen through torch.compile
-- issue `#200` new allocator for VF mode
+- [PR #816](https://github.com/torch-spyre/torch-spyre/pull/816) multi-Spyre device support framework
+- [PR #918](https://github.com/torch-spyre/torch-spyre/pull/918) stream support
+- [PR #1007](https://github.com/torch-spyre/torch-spyre/pull/1007) graph-free copy
+- [PR #1049](https://github.com/torch-spyre/torch-spyre/pull/1049) profiling toolkit RFC
+- [PR #1010](https://github.com/torch-spyre/torch-spyre/pull/1010) SpyreCode / JobPlan alignment
+- [PR #1011](https://github.com/torch-spyre/torch-spyre/pull/1011) tensor memory access analysis
+- [PR #868](https://github.com/torch-spyre/torch-spyre/pull/868) SuperDSC-Bundle specification
+- [issue #682](https://github.com/torch-spyre/torch-spyre/issues/682) KTIR
+- [issue #183](https://github.com/torch-spyre/torch-spyre/issues/183) eager codegen through torch.compile
+- [issue #200](https://github.com/torch-spyre/torch-spyre/issues/200) new allocator for VF mode
 
 ## Priorities
 
