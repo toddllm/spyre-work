@@ -20,6 +20,29 @@ external dependencies. It covers:
 - [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
   - ranked benchmark data, full run registry, and the published AIU prefix-cache probe
 
+## Current Status
+
+The current `vllm_spyre` AIU report covers single-card KV reuse, same-node
+service-backed persistence, and server-path prefix caching. The detailed status
+note is:
+
+- [Current-Stack AIU KV Status (2026-03-17)](./topics/validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
+
+At a glance:
+
+- exact aligned KV reuse is working on AIU
+- partial aligned KV reuse is working on AIU
+- same-node service-backed KV persistence is working on AIU
+- server-path prefix caching is working on AIU
+- the confirmed offload result is synchronous local host-backed save/load/reuse
+
+[![Current-stack AIU KV summary](./topics/validation-and-proof-plan/assets/current-stack-aiu-kv-summary-2026-03-17.png)](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
+
+Supporting detail:
+
+- [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
+  - benchmark tables, full run registry, commands, and prefix-cache probe results
+
 ## Stack Summary
 
 The current `vllm_spyre` path uses a larger Spyre-specific integration surface:
