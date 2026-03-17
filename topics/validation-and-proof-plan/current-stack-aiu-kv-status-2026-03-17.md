@@ -2,6 +2,14 @@
 
 Last updated: 2026-03-17
 
+At a glance, the current-stack AIU KV runs show a clear reuse win across the
+published benchmark sweep, with the strongest clean aligned case at just over
+`2.1x` speedup. The clickable summary below is the quick skim; full run
+details, parameters, commands, and the prefix-cache probe results live on the
+[Current-stack AIU KV data](./current-stack-aiu-kv-data.md) page.
+
+[![Current-stack AIU KV summary](./assets/current-stack-aiu-kv-summary-2026-03-17.png)](./current-stack-aiu-kv-data.md)
+
 <details markdown="1">
 <summary><strong>Purpose</strong></summary>
 
