@@ -1,25 +1,15 @@
-# Spyre vLLM Big Picture
+# Spyre vLLM Work Map
 
 Last updated: 2026-03-17
 
-<details markdown="1">
-<summary><strong>Purpose</strong></summary>
+This repository is the top-level map for Spyre + vLLM planning, validation, and
+external dependencies. It covers:
 
-
-This note is the broad planning view for Spyre + vLLM work across:
-
-- the current `vllm_spyre` path
-- `vllm-spyre-next` / the new stack
-- KV reuse / KV offload / P-D disaggregation
-- multi-Spyre and distributed support
-- the transition from the current compiler/runtime contract family to the
-  future torch-spyre compiler/backend direction
-
-This note is intentionally broader than the in-tree research/RFC documents. It
-is meant to help decide priorities, validation order, and where to watch for
-external changes.
-
-</details>
+- the current `vllm_spyre` stack
+- `vllm-spyre-next`
+- KV reuse, KV offload, and prefill/decode disaggregation
+- multi-Spyre and distributed prerequisites
+- compiler and runtime transition points in `torch-spyre`
 
 ## Current Reporting Snapshot
 
@@ -30,16 +20,9 @@ external changes.
 - [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
   - ranked benchmark data, full run registry, and the published AIU prefix-cache probe
 
-## Where We Have Been
+## Stack Summary
 
-The original `vllm_spyre` architecture made sense because:
-
-1. vLLM modeling code was not a good fit for `torch.compile`
-2. Spyre compiler/runtime constraints forced custom scheduling, batching, and
-   model-execution logic
-3. using FMS and a smaller custom surface reduced upstream breakage risk
-
-That produced a plugin that worked, but at the cost of:
+The current `vllm_spyre` path uses a larger Spyre-specific integration surface:
 
 - custom scheduler logic
 - custom worker/model-runner logic
@@ -47,13 +30,9 @@ That produced a plugin that worked, but at the cost of:
 - dependence on FMS modeling code instead of upstream vLLM modeling code
 - limited reuse of upstream vLLM compiler integrations
 
-The `vllm-spyre-next` direction exists because those assumptions are changing:
-
-- upstream vLLM now leans hard on `torch.compile`
-- torch-spyre is trying to make Spyre look more like a first-class PyTorch
-  device/backend
-- the torch-spyre runtime/compiler surface is being reorganized in ways that
-  should make a thinner vLLM plugin more plausible over time
+The `vllm-spyre-next` direction targets a smaller integration surface with more
+upstream vLLM behavior and a larger dependency on `torch-spyre`
+runtime/compiler maturity.
 
 ## Architecture Snapshot: Current Spyre Software Stack
 
@@ -579,9 +558,9 @@ toward the current `vllm_spyre` path and `vllm-spyre-next`.
 - [Live tracker](./LIVE_TRACKER.md)
 - [Topic index](./topics/README.md)
 - Working research draft in `toddllm/vllm-spyre`:
-  [spyre-kv-offload-research.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-research.md)
+  [spyre-kv-offload-research.md](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/docs/roadmaps/spyre-kv-offload-research.md)
 - Working RFC draft in `toddllm/vllm-spyre`:
-  [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
+  [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
 
 This repo is intended to be the higher-level tracking layer. Lower-level RFCs,
 research notes, PRs, and implementation details should continue to live in the

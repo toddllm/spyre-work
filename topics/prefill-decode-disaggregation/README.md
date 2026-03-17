@@ -280,9 +280,9 @@ That means current path P/D work should be treated as:
 
 ### Current Code Touchpoints
 
-- [`spyre_kv_connector_bridge.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_kv_connector_bridge.py)
+- [`spyre_kv_connector_bridge.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_kv_connector_bridge.py)
   - connector lifecycle and load/save/transfer control
-- [`spyre_model_runner.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_model_runner.py)
+- [`spyre_model_runner.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_model_runner.py)
   - current synchronization boundary around forward execution
 - Spyre connector epic:
   [vllm-spyre issue #745](https://github.com/vllm-project/vllm-spyre/issues/745)

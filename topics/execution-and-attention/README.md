@@ -235,7 +235,7 @@ or get forced into the wrong seam too early.
 - Layer-wise split execution:
   [vllm-spyre issue #689](https://github.com/vllm-project/vllm-spyre/issues/689)
 - Current model loader path in working fork:
-  [`spyre.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/model_executor/model_loader/spyre.py)
+  [`spyre.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/model_executor/model_loader/spyre.py)
 
 ## Current Direction
 

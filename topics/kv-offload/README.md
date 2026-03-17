@@ -2,115 +2,23 @@
 
 Last updated: 2026-03-17
 
-<details markdown="1">
-<summary><strong>Purpose</strong></summary>
+This topic records the offload model, current implementation seam, and current
+validation status.
 
+Related pages:
 
-This document is the top-level map for KV offload in the Spyre + vLLM context.
+- [Top-level index](../../README.md)
+- [Current-Stack AIU KV Status (2026-03-17)](../validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
+- [Current-Stack AIU KV Data](../validation-and-proof-plan/current-stack-aiu-kv-data.md)
+- [KV Reuse](../kv-reuse/README.md)
+- [Prefill/Decode Disaggregation](../prefill-decode-disaggregation/README.md)
 
-It starts from first principles and then narrows to the concrete Spyre path
-that matters most right now: transport-backed local offload.
+## Definition
 
-This topic is intentionally broader than:
+KV offload means saving KV state outside the active execution context and
+reloading it later.
 
-- one offload medium
-- one connector implementation
-- one hardware generation
-
-</details>
-
-<details markdown="1">
-<summary><strong>Where This Fits</strong></summary>
-
-
-- Back to the big picture: [../../README.md](../../README.md)
-- Tactical watch list: [../../LIVE_TRACKER.md](../../LIVE_TRACKER.md)
-- Neighbor topic: [KV Reuse](../kv-reuse/README.md)
-- Neighbor topic: [Prefill/Decode Disaggregation](../prefill-decode-disaggregation/README.md)
-
-</details>
-
-<details markdown="1">
-<summary><strong>Engineer Lenses</strong></summary>
-
-
-### Current `vllm_spyre` engineers
-
-This topic should answer:
-
-- where the first real offload seam exists today
-- what save/load/copy state has to stay aligned around that seam
-
-### `vllm-spyre-next` engineers
-
-This topic should answer:
-
-- what the long-term offload ownership model should look like
-- why `vllm-spyre-next` is the destination rather than the first proof point
-
-### Upstream vLLM engineers
-
-This topic should answer:
-
-- how Spyre wants to align with upstream HMA/offload semantics
-- what awkwardness on the current path is temporary versus fundamental
-
-### `torch-spyre` engineers
-
-This topic should answer:
-
-- which copy, medium, and lower-layout guarantees would make offload cleaner
-- what transport-backed local offload is really asking of the substrate
-
-</details>
-
-<details markdown="1">
-<summary><strong>Scope</strong></summary>
-
-
-This note is intentionally layered:
-
-1. KV offload in general
-2. Offload unit, mapping, medium, and lifecycle
-3. Current Spyre software stack
-4. `vllm-spyre-next` / new stack
-5. Current proof direction
-
-</details>
-
-<details markdown="1">
-<summary><strong>First Principles</strong></summary>
-
-
-### What problem is being solved?
-
-KV state does not necessarily need to remain resident in the active execution
-context at all times.
-
-KV offload means:
-
-- KV is saved to another medium
-- active execution may release or avoid retaining all of that KV locally
-- later execution reloads the required KV back into the execution context
-
-This is useful when active KV residency becomes a pressure point for:
-
-- capacity
-- concurrency
-- topology choices
-- specialization between execution contexts
-
-### How is KV offload different from KV reuse?
-
-KV reuse is primarily about:
-
-- already having compatible reusable KV for a later request
-
-KV offload is primarily about:
-
-- moving KV out of the active execution context and bringing it back later
-
-They overlap, but they are not the same:
+Reuse and offload are related but distinct:
 
 ```text
   reuse
@@ -119,20 +27,6 @@ They overlap, but they are not the same:
   offload
     -> explicitly save and later reload KV
 ```
-
-### How is KV offload different from prefill/decode disaggregation?
-
-Offload:
-
-- same logical serving context
-- storage / reload oriented
-
-Prefill/decode disaggregation:
-
-- producer and consumer may be different execution contexts
-- handoff / transfer oriented
-
-</details>
 
 ## Minimal Offload Contract
 
@@ -210,17 +104,11 @@ Any serious KV offload design needs answers to:
   medium key / address / handle
 ```
 
-The exact design question is whether these are:
-
-- the same representation
-- compatible representations
-- or explicitly translated representations
-
 ## Current Spyre Software Stack
 
-The current Spyre software stack is the most realistic place to attempt the
-first serious AIU offload step because the worker/model-runner seam and
-staged/live sync seam already exist.
+The current Spyre software stack is the active proof surface for AIU offload
+work because the worker/model-runner seam and staged/live synchronization seam
+already exist.
 
 ### Current Path Offload Flow
 
@@ -309,28 +197,26 @@ staged/live sync seam already exist.
       - what can attention trust?
 ```
 
-### Why the Current Stack Is the First Offload Seam
+### Current implementation properties
 
-Because it already contains:
+The current stack contains:
 
 - connector metadata plumbing
 - load/save lifecycle hooks
 - explicit staged/live translation points
 - a place to measure save/load behavior on AIU
 
-The offload seam is not clean, but it is real.
-
 ### Current Code Touchpoints
 
-- [`spyre_kv_connector_bridge.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_kv_connector_bridge.py)
+- [`spyre_kv_connector_bridge.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_kv_connector_bridge.py)
   - connector lifecycle and load/save control
-- [`spyre_model_runner.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_model_runner.py)
+- [`spyre_model_runner.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_model_runner.py)
   - staged/live synchronization and forward integration
-- [`spyre_worker.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_worker.py)
+- [`spyre_worker.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_worker.py)
   - execution entry point
-- [`spyre-kv-offload-research.md`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-research.md)
+- [`spyre-kv-offload-research.md`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/docs/roadmaps/spyre-kv-offload-research.md)
   - current research framing
-- [`spyre-kv-offload-rfc-draft.md`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
+- [`spyre-kv-offload-rfc-draft.md`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
   - current proposed roadmap shape
 
 ## vllm-spyre-next / New Stack
@@ -355,7 +241,7 @@ connector/offload concepts and less with worker-side translation glue.
                 offload medium
 ```
 
-### What Should Improve on vllm-spyre-next
+### Target changes on vllm-spyre-next
 
 ```text
   current vllm-spyre path
@@ -369,15 +255,13 @@ connector/offload concepts and less with worker-side translation glue.
     - cleaner ownership between scheduler, execution, and medium
 ```
 
-### Why vllm-spyre-next Is Not the First Offload Proof Point
+### Current limitation on vllm-spyre-next
 
-Because `vllm-spyre-next` still depends on:
+`vllm-spyre-next` still depends on:
 
 - execution maturity
 - paged attention maturity
 - copy / stream maturity in torch-spyre
-
-That makes it the better destination, not the first proof seam.
 
 ## Current Path vs New Stack
 
@@ -404,9 +288,9 @@ That makes it the better destination, not the first proof seam.
   capacity / eviction accounting
 ```
 
-## Current Spyre Direction
+## Current Direction
 
-Near-term direction under the KV offload umbrella:
+Near-term direction:
 
 - keep the first meaningful offload experiment on the current `vllm_spyre`
   path

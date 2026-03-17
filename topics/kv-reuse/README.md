@@ -381,13 +381,13 @@ What it has not yet settled:
 
 ### Current Code Touchpoints
 
-- [`spyre_kv_connector_bridge.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_kv_connector_bridge.py)
+- [`spyre_kv_connector_bridge.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_kv_connector_bridge.py)
   - bridge lifecycle and connector handshake
-- [`spyre_model_runner.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_model_runner.py)
+- [`spyre_model_runner.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_model_runner.py)
   - bridge wiring around forward execution and staged/live synchronization
-- [`spyre_worker.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/v1/worker/spyre_worker.py)
+- [`spyre_worker.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_worker.py)
   - worker entry point and execution delegation
-- [`spyre.py`](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/vllm_spyre/model_executor/model_loader/spyre.py)
+- [`spyre.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/model_executor/model_loader/spyre.py)
   - current path model loading, compile path, and attention/KV setup
 
 ## vllm-spyre-next / New Stack
@@ -512,9 +512,9 @@ target.
 ## Related Source-Repos and References
 
 - Working research draft:
-  [spyre-kv-offload-research.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-research.md)
+  [spyre-kv-offload-research.md](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/docs/roadmaps/spyre-kv-offload-research.md)
 - Working RFC draft:
-  [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/codex/spyre-kv-slice-inmemory/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
+  [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
 - Spyre connector epic:
   [vllm-spyre issue #745](https://github.com/vllm-project/vllm-spyre/issues/745)
 - `vllm-spyre-next` rationale:
