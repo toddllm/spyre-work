@@ -1,6 +1,6 @@
 # Spyre vLLM Big Picture
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 <details markdown="1">
 <summary><strong>Purpose</strong></summary>
@@ -20,6 +20,15 @@ is meant to help decide priorities, validation order, and where to watch for
 external changes.
 
 </details>
+
+## Current Reporting Snapshot
+
+- [Validation and Proof Plan](./topics/validation-and-proof-plan/README.md)
+  - shared evidence ladder across the current stack, next stack, and multi-Spyre work
+- [Current-Stack AIU KV Status (2026-03-17)](./topics/validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
+  - current-stack reuse/offload status with explicit non-claims
+- [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
+  - ranked benchmark data, full run registry, and the published AIU prefix-cache probe
 
 ## Where We Have Been
 

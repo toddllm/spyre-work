@@ -1,6 +1,6 @@
 # KV Offload
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 <details markdown="1">
 <summary><strong>Purpose</strong></summary>
@@ -187,6 +187,9 @@ Any serious KV offload design needs answers to:
 - [Current-Stack AIU KV Status (2026-03-17)](../validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
   - best compact statement of what is proven now versus what remains unproven
   - useful when the question is "where exactly are we on offload today?"
+- [Current-Stack AIU KV Data](../validation-and-proof-plan/current-stack-aiu-kv-data.md)
+  - benchmark and prefix-cache tables
+  - repeatable run registry for the current-stack proof slice
 
 ## Generic Mapping Model
 

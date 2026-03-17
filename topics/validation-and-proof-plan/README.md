@@ -1,6 +1,6 @@
 # Validation and Proof Plan
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 <details markdown="1">
 <summary><strong>Purpose</strong></summary>
@@ -200,7 +200,12 @@ The practical validation posture right now should be:
 - [Current-Stack AIU KV Status (2026-03-17)](./current-stack-aiu-kv-status-2026-03-17.md)
   - current-stack reuse proof status
   - precise offload story and non-claims
-  - next critical-path validation before broader report-out
+  - server-path prefix-caching result on AIU
+  - report-ready current-stack status snapshot
+- [Current-Stack AIU KV Data](./current-stack-aiu-kv-data.md)
+  - ranked reuse benchmark results
+  - full run registry with commands and parameters
+  - published AIU prefix-cache probe result
 
 ## Communication Goal
 

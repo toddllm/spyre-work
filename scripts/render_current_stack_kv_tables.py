@@ -71,6 +71,13 @@ def _label_from_path(path: Path) -> str:
 
 
 def _render_benchmark_section(paths: list[Path]) -> list[str]:
+    runs = []
+    for path in paths:
+        data = _load_jsonish(path)
+        comparison = data["comparisons"]["exact_reuse_vs_exact_cold"]
+        runs.append((path, data, comparison))
+    runs.sort(key=lambda item: float(item[2]["speedup"]), reverse=True)
+
     lines = [
         "## Current-Stack KV Reuse Benchmark Snapshot",
         "",
@@ -78,9 +85,7 @@ def _render_benchmark_section(paths: list[Path]) -> list[str]:
         "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
     ]
     bars: list[str] = ["```text", "Reuse speedup"]
-    for path in paths:
-        data = _load_jsonish(path)
-        comparison = data["comparisons"]["exact_reuse_vs_exact_cold"]
+    for path, data, comparison in runs:
         output_tokens = int(data["scenarios"]["exact_reuse"]["output_tokens"]["mean"])
         speedup = float(comparison["speedup"])
         lines.append(
@@ -96,17 +101,71 @@ def _render_benchmark_section(paths: list[Path]) -> list[str]:
         )
         bars.append(f"{_label_from_path(path):<42} {_speed_bar(speedup)} {speedup:.3f}x")
     bars.append("```")
-    lines.extend(["", *bars])
+    lines.extend(["", *bars, "", "## Full Run Registry", ""])
+
+    for path, data, comparison in runs:
+        run_metadata = data.get("run_metadata", {})
+        git_info = run_metadata.get("git", {})
+        argv = " ".join(run_metadata.get("argv", []))
+        lines.extend(
+            [
+                f"### `{_label_from_path(path)}`",
+                "",
+                f"- Artifact: `{path.name}`",
+                f"- Git branch: `{git_info.get('branch', 'n/a')}`",
+                f"- Git commit: `{git_info.get('commit', 'n/a')}`",
+                f"- Model: `{data.get('model', 'n/a')}`",
+                f"- Backend: `{data.get('backend', 'n/a')}`",
+                f"- Store backend: `{data.get('store_backend', 'n/a')}`",
+                f"- Template: `{data.get('demo_template', 'n/a')}`",
+                f"- Task: {data.get('resolved_instruction_text', 'n/a')}",
+                f"- Prompt tokens: `{data.get('prompt_exact_tokens', 'n/a')}`",
+                f"- Output tokens: `{int(data['scenarios']['exact_reuse']['output_tokens']['mean'])}`",
+                f"- Warmup runs: `{data.get('warmup_runs', 'n/a')}`",
+                f"- Reuse turns: `{data.get('repeats', 'n/a')}`",
+                f"- max_num_batched_tokens: `{data.get('effective_max_num_batched_tokens', 'n/a')}`",
+                f"- Sleep between live lines: `{data.get('sleep_between_live_lines', 'n/a')}`",
+                f"- Cold mean latency: `{float(comparison['cold_mean_seconds']):.6f}s`",
+                f"- Reuse mean latency: `{float(comparison['reuse_mean_seconds']):.6f}s`",
+                f"- Speedup: `{float(comparison['speedup']):.6f}x`",
+                "",
+                "Command:",
+                "",
+                "```bash",
+                argv,
+                "```",
+                "",
+            ]
+        )
     return lines
 
 
 def _render_prefix_section(prefix_json_path: Path) -> list[str]:
     data = _load_jsonish(prefix_json_path)
+    run_metadata = data.get("run_metadata", {})
+    git_info = run_metadata.get("git", {})
+    argv = " ".join(run_metadata.get("argv", []))
+    exact_cases = ", ".join(
+        f"{case['prompt_len_tokens']}:{case['expected_hit_tokens']}"
+        for case in data["exact_cases"]
+    )
+    partial_cases = ", ".join(
+        f"{case['prompt_len_tokens']}:{case['expected_hit_tokens']}"
+        for case in data["partial_cases"]
+    )
     lines = [
         "## Prefix Cache Probe Snapshot",
         "",
+        f"- Artifact: `{prefix_json_path.name}`",
+        f"- Git branch: `{git_info.get('branch', 'n/a')}`",
+        f"- Git commit: `{git_info.get('commit', 'n/a')}`",
         f"- Model: `{data['model']}`",
+        f"- Tokenizer: `{data.get('tokenizer', 'n/a')}`",
         f"- Chunk size: `{data['chunk_size']}`",
+        f"- Max new tokens: `{data.get('max_tokens', 'n/a')}`",
+        f"- Warmup prompt tokens: `{data.get('warmup_prompt_tokens', 'n/a')}`",
+        f"- Exact cases: `{exact_cases}`",
+        f"- Partial cases: `{partial_cases}`",
         f"- All cases passed: `{data['summary']['all_passed']}`",
         "",
         "### Exact Prefix Cases",
@@ -151,6 +210,16 @@ def _render_prefix_section(prefix_json_path: Path) -> list[str]:
                 passed="yes" if case["pass"] else "no",
             )
         )
+    lines.extend(
+        [
+            "",
+            "Command:",
+            "",
+            "```bash",
+            argv,
+            "```",
+        ]
+    )
     return lines
 
 
