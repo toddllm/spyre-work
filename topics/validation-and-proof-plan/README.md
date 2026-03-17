@@ -195,6 +195,13 @@ The practical validation posture right now should be:
 - keep `vllm-spyre-next` moving without forcing it to carry every proof burden
 - keep the meta docs honest about what is proven, plausible, and still open
 
+## Current Report Snapshot
+
+- [Current-Stack AIU KV Status (2026-03-17)](./current-stack-aiu-kv-status-2026-03-17.md)
+  - current-stack reuse proof status
+  - precise offload story and non-claims
+  - next critical-path validation before broader report-out
+
 ## Communication Goal
 
 The main communication job of this topic is to give all teams a shared evidence

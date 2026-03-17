@@ -179,8 +179,14 @@ Any serious KV offload design needs answers to:
          +--> remap into execution representation
          |
          v
-   continue execution
+  continue execution
 ```
+
+## Current Reporting Snapshot
+
+- [Current-Stack AIU KV Status (2026-03-17)](../validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
+  - best compact statement of what is proven now versus what remains unproven
+  - useful when the question is "where exactly are we on offload today?"
 
 ## Generic Mapping Model
 
