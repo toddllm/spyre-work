@@ -55,7 +55,8 @@ Supporting detail:
 - [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
   - benchmark tables, full run registry, commands, and prefix-cache probe results
 - [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./topics/validation-and-proof-plan/current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
-  - `r17` and `r18` follow-on semantic results, including stale-reference repair
+  - `r17` and `r18` follow-on semantic results, including exact cold-vs-reuse
+    mismatches, probe values, and code-path call sites
 
 ## Stack Summary
 

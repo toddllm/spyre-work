@@ -86,6 +86,8 @@ Full prefix-cache tables:
 Published follow-on note:
 
 - [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
+  - includes exact cold-vs-reuse outputs, probe checksums, and the public code
+    calls exercised in the investigation
 
 At a glance:
 
