@@ -1,6 +1,6 @@
 # Spyre vLLM Work Map
 
-Last updated: 2026-03-17
+Last updated: 2026-03-18
 
 This repository is the top-level map for Spyre + vLLM planning, validation, and
 external dependencies. It covers:
@@ -17,16 +17,27 @@ external dependencies. It covers:
   - shared evidence ladder across the current stack, next stack, and multi-Spyre work
 - [Current-Stack AIU KV Status (2026-03-17)](./topics/validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
   - current-stack reuse/offload status with explicit non-claims
+- [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./topics/validation-and-proof-plan/current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
+  - follow-on AIU cold-vs-reuse correctness results for the current stack
 - [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
   - ranked benchmark data, full run registry, and the published AIU prefix-cache probe
 
 ## Current Status
 
-The current `vllm_spyre` AIU report covers single-card KV reuse, same-node
-service-backed persistence, and server-path prefix caching. The detailed status
-note is:
+The current `vllm_spyre` AIU work now has two published result classes:
+
+- positive current-stack results:
+  - aligned KV reuse latency behavior on AIU
+  - same-node service-backed persistence behavior on AIU
+  - server-path prefix caching on AIU
+- follow-on semantic investigation:
+  - current-stack external KV offload/reload did not pass cold-vs-reuse
+    correctness testing
+
+Detailed notes:
 
 - [Current-Stack AIU KV Status (2026-03-17)](./topics/validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
+- [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./topics/validation-and-proof-plan/current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
 
 At a glance:
 
@@ -34,7 +45,8 @@ At a glance:
 - partial aligned KV reuse is working on AIU
 - same-node service-backed KV persistence is working on AIU
 - server-path prefix caching is working on AIU
-- the confirmed offload result is synchronous local host-backed save/load/reuse
+- current-stack semantic cold-vs-reuse testing did not establish semantically
+  correct external KV offload/reload
 
 [![Current-stack AIU KV summary](./topics/validation-and-proof-plan/assets/current-stack-aiu-kv-summary-2026-03-17.png)](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
 
@@ -42,6 +54,8 @@ Supporting detail:
 
 - [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
   - benchmark tables, full run registry, commands, and prefix-cache probe results
+- [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./topics/validation-and-proof-plan/current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
+  - `r17` and `r18` follow-on semantic results, including stale-reference repair
 
 ## Stack Summary
 
@@ -173,7 +187,7 @@ Properties of this design point:
 
 ## KV Reuse / KV Offload / P-D Disaggregation on the Current Spyre Software Stack
 
-### 1. Current path: local KV reuse / offload direction
+### 1. Current path: exploratory worker-side KV path
 
 ```text
    current vllm-spyre path request
@@ -199,8 +213,10 @@ Properties of this design point:
 
 The important point is that the seam is worker-side and staging-based.
 
-That is a workable near-term seam, but it is not yet the same thing as a
-native vLLM offload backend.
+This was a useful current-stack experiment surface for `r17` and `r18`, but
+those follow-on semantic runs did not establish semantically correct external KV
+offload/reload on the current stack. Read this as an exploratory control-path
+shape, not as a supported current-stack offload design.
 
 ### 2. Current path: P-D disaggregation direction
 

@@ -69,7 +69,7 @@ Use the current `vllm_spyre` path to prove:
 
 - single-card AIU functional correctness
 - local reuse value
-- first offload semantics
+- current-stack control-path and observability behavior
 - observability and benchmark shape
 
 ### vllm-spyre-next later
@@ -95,7 +95,7 @@ Use the multi-device track to prove:
   Topic                              First proof target
   --------------------------------   -------------------------------
   KV reuse                           current vllm-spyre path, single-card AIU
-  KV offload                         current vllm-spyre path, single-card AIU
+  KV offload                         exploratory current-stack checks, then next-stack target
   P/D disaggregation                 later, after reuse/offload semantics
   vllm-spyre-next architecture       local + targeted AIU maturity checks
   multi-Spyre                        later distributed / topology work
@@ -116,9 +116,13 @@ Use the multi-device track to prove:
 
 - [Current-Stack AIU KV Status (2026-03-17)](./current-stack-aiu-kv-status-2026-03-17.md)
   - current-stack reuse proof status
-  - precise offload story and non-claims
+  - precise current-stack non-claims
   - server-path prefix-caching result on AIU
   - report-ready current-stack status snapshot
+- [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
+  - `r17` and `r18` cold-vs-reuse correctness results
+  - stale-reference repair and remaining semantic mismatch
+  - clarified boundary for current-stack external KV offload claims
 - [Current-Stack AIU KV Data](./current-stack-aiu-kv-data.md)
   - ranked reuse benchmark results
   - full run registry with commands and parameters

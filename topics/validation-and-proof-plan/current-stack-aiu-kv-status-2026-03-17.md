@@ -7,6 +7,10 @@ benefit across the published runs. Full run-by-run parameters, commands, and
 prefix-cache probe results are on the
 [Current-stack AIU KV data](./current-stack-aiu-kv-data.md) page.
 
+Follow-on semantic cold-vs-reuse results for the current stack are on:
+
+- [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
+
 [![Current-stack AIU KV summary](./assets/current-stack-aiu-kv-summary-2026-03-17.png)](./current-stack-aiu-kv-data.md)
 
 ## Scope
@@ -37,7 +41,8 @@ Related pages:
 - Partial aligned KV reuse is working on AIU.
 - Same-node service-backed KV persistence is working on AIU.
 - Server-path prefix caching is working on AIU.
-- The current results support synchronous local host-backed KV save/load/reuse.
+- Follow-on semantic testing did not establish semantically correct external KV
+  offload/reload on the current stack.
 
 ## Representative Results
 
@@ -76,14 +81,28 @@ Full prefix-cache tables:
 
 - [Current-stack AIU KV data](./current-stack-aiu-kv-data.md#prefix-cache-probe-snapshot)
 
+## Semantic Investigation Follow-On
+
+Published follow-on note:
+
+- [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
+
+At a glance:
+
+- `r17` reproduced semantic mismatch on both:
+  - `host_memory`
+  - `serialized_shared_memory_service`
+- `r18a` found a stale-reference bug in the experimental path
+- `r18b` repaired the stale-reference bug
+- semantic mismatch still remained after that repair
+
 ## Offload Status
 
 ### Confirmed in the current report
 
-- KV can be staged out of the active execution context.
-- KV can be saved in a host-backed medium.
-- Later work can reload compatible KV and continue.
-- The current implementation produces measurable latency benefit on AIU.
+- AIU block accounting and reuse-related latency behavior are real.
+- Current-stack same-node service-backed persistence behavior is real.
+- Server-path prefix caching is real on AIU.
 
 ### Not yet demonstrated in the current report
 
@@ -96,8 +115,12 @@ Full prefix-cache tables:
 
 ### Precise statement
 
-- Confirmed: synchronous local host-backed KV save/load/reuse on the current stack
-- Not yet confirmed: transport-backed or overlap-backed offload as a serving feature
+- Confirmed: current-stack AIU reuse behavior, service-backed persistence
+  behavior, and server-path prefix caching
+- Not established: semantically correct external KV offload/reload on the
+  current stack
+- Not yet confirmed: transport-backed or overlap-backed offload as a serving
+  feature
 
 ## Relevant Implementation References
 
@@ -141,6 +164,7 @@ The companion data page records, for each published run:
 See:
 
 - [Current-stack AIU KV data](./current-stack-aiu-kv-data.md)
+- [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
 
 ## Immediate Next Steps
 
