@@ -1,6 +1,6 @@
 # Current-Stack AIU KV Semantic Investigation
 
-Last updated: 2026-03-18
+Last updated: 2026-03-24
 
 This page records the follow-on AIU investigation that tested semantic
 correctness of external KV save/load on the current `vllm_spyre` stack after the
@@ -224,6 +224,34 @@ The current-stack semantic investigation established the following:
 The durable result is that the current-stack tensor surface used in the
 experiment was not sufficient to prove semantically correct external KV
 offload/reload.
+
+## Scope Clarification
+
+This page should be read narrowly.
+
+What it proves:
+
+- the tested `past_key_value_states -> staging -> loadback/sync` surface did not
+  preserve semantics
+- one stale-reference bug existed on that path and was repaired
+- semantic mismatch still remained on that same tested surface after repair
+
+What it does not prove:
+
+- that every possible current-stack KV surface must fail
+- that next-stack work in `vllm-spyre-next` inherits the same failure by
+  default
+- that `torch-spyre` cannot support a semantically correct runtime/KV contract
+
+The broader public lesson is about proof discipline:
+
+- semantic equality must be checked directly
+- exact and partial cases both matter
+- the authoritative KV/runtime surface must be stated explicitly
+
+Related public interpretation note:
+
+- [KV Semantic Lessons and Validation Implications (2026-03-24)](./kv-semantic-lessons-and-validation-implications-2026-03-24.md)
 
 More concretely:
 

@@ -1,6 +1,6 @@
 # KV Offload
 
-Last updated: 2026-03-17
+Last updated: 2026-03-24
 
 This topic records the offload model, current implementation seam, and current
 validation status.
@@ -84,6 +84,9 @@ Any serious KV offload design needs answers to:
 - [Current-Stack AIU KV Data](../validation-and-proof-plan/current-stack-aiu-kv-data.md)
   - benchmark and prefix-cache tables
   - repeatable run registry for the current-stack proof slice
+- [KV Semantic Lessons and Validation Implications (2026-03-24)](../validation-and-proof-plan/kv-semantic-lessons-and-validation-implications-2026-03-24.md)
+  - scoped interpretation of the public semantic failure result
+  - stronger semantic acceptance bar for future offload claims
 
 ## Generic Mapping Model
 
@@ -109,6 +112,17 @@ Any serious KV offload design needs answers to:
 The current Spyre software stack is the active proof surface for AIU offload
 work because the worker/model-runner seam and staged/live synchronization seam
 already exist.
+
+Public interpretation update:
+
+- that staged/live seam was a useful exploratory proof surface
+- but the published semantic investigation showed that the tested
+  staging/tensor surface was not sufficient for semantically correct external
+  KV offload/reload
+- so public offload claims must now distinguish between:
+  - a convenient exploratory translation surface
+  - the authoritative execution/runtime surface that semantics actually depend
+    on
 
 ### Current Path Offload Flow
 
@@ -206,6 +220,12 @@ The current stack contains:
 - explicit staged/live translation points
 - a place to measure save/load behavior on AIU
 
+But the public semantic investigation now constrains how this should be read:
+
+- useful as an exploratory control-path and observability seam
+- not yet a public proof that the staged/tensor surface is the correct
+  offload/reload substrate
+
 ### Current Code Touchpoints
 
 - [`spyre_kv_connector_bridge.py`](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/vllm_spyre/v1/worker/spyre_kv_connector_bridge.py)
@@ -223,6 +243,14 @@ The current stack contains:
 
 The `vllm-spyre-next` target should align offload more directly with upstream
 connector/offload concepts and less with worker-side translation glue.
+
+The public lessons from the current-stack semantic investigation apply closely
+here too:
+
+- token-level semantic checks should be first-class
+- exact and partial reuse/offload cases should both be exercised
+- sequential handoff proof is stronger than paired benchmark evidence alone
+- the authoritative `torch-spyre` runtime/KV surface must be stated explicitly
 
 ### New Stack Offload Target
 

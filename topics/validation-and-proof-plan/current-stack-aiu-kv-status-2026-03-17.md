@@ -1,6 +1,6 @@
 # Current-Stack AIU KV Status
 
-Last updated: 2026-03-17
+Last updated: 2026-03-24
 
 The current `vllm_spyre` AIU benchmark sweep shows a consistent KV reuse
 benefit across the published runs. Full run-by-run parameters, commands, and
@@ -98,6 +98,15 @@ At a glance:
 - `r18b` repaired the stale-reference bug
 - semantic mismatch still remained after that repair
 
+Scope clarification:
+
+- this published semantic result applies to the tested worker-side
+  `past_key_value_states -> staging -> connector` surface
+- it should not be generalized into a blanket claim about every possible
+  current-stack or next-stack KV surface
+- the durable public lesson is that semantic proof depends on testing the
+  authoritative KV/runtime surface, not only a convenient exposed tensor surface
+
 ## Offload Status
 
 ### Confirmed in the current report
@@ -120,9 +129,13 @@ At a glance:
 - Confirmed: current-stack AIU reuse behavior, service-backed persistence
   behavior, and server-path prefix caching
 - Not established: semantically correct external KV offload/reload on the
-  current stack
+  tested current-stack staging/tensor surface
 - Not yet confirmed: transport-backed or overlap-backed offload as a serving
   feature
+
+Related interpretation note:
+
+- [KV Semantic Lessons and Validation Implications (2026-03-24)](./kv-semantic-lessons-and-validation-implications-2026-03-24.md)
 
 ## Relevant Implementation References
 
@@ -171,6 +184,10 @@ See:
 ## Immediate Next Steps
 
 - Keep the current-stack report limited to the confirmed claims above.
+- Keep the semantic failure result explicitly scoped to the tested
+  staging/tensor surface.
+- Carry the stronger semantic proof bar forward into future public work on
+  `vllm-spyre-next`, `torch-spyre`, and prefill/decode validation.
 - Use the current-stack results as the baseline for future offload and
   disaggregation work.
 - Track next-stack and multi-Spyre work separately from this report.

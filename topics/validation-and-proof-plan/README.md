@@ -1,6 +1,6 @@
 # Validation and Proof Plan
 
-Last updated: 2026-03-17
+Last updated: 2026-03-24
 
 This topic defines the validation order and evidence thresholds used in this
 repository.
@@ -123,6 +123,11 @@ Use the multi-device track to prove:
   - `r17` and `r18` cold-vs-reuse correctness results
   - stale-reference repair and remaining semantic mismatch
   - clarified boundary for current-stack external KV offload claims
+- [KV Semantic Lessons and Validation Implications (2026-03-24)](./kv-semantic-lessons-and-validation-implications-2026-03-24.md)
+  - scoped interpretation of the public semantic failure result
+  - stronger semantic acceptance bar for future public work
+  - transfer implications for `vllm-spyre-next`, `torch-spyre`, and
+    prefill/decode work
 - [Current-Stack AIU KV Data](./current-stack-aiu-kv-data.md)
   - ranked reuse benchmark results
   - full run registry with commands and parameters
@@ -138,3 +143,26 @@ Use the multi-device track to prove:
   [spyre-kv-offload-rfc-draft.md](https://github.com/toddllm/vllm-spyre/blob/spyre-kv-inmemory-slice/docs/roadmaps/spyre-kv-offload-rfc-draft.md)
 - P/D acceptance tests upstream:
   [vLLM PR #35760](https://github.com/vllm-project/vllm/pull/35760)
+
+## Public Interpretation Update
+
+The published current-stack semantic failure result should now be read with a
+more precise scope:
+
+- it is a valid result for the tested worker-side staging/tensor surface
+- it is not a blanket public verdict on every possible current-stack or
+  next-stack KV substrate
+
+The durable public update is therefore methodological:
+
+- require token-level semantic checks
+- require exact + partial coverage
+- prefer sequential handoff proofs over paired benchmark claims alone
+- state explicitly what surface is believed to be authoritative
+
+That is the main public lesson that should carry forward into:
+
+- current `vllm_spyre`
+- `vllm-spyre-next`
+- `torch-spyre`
+- prefill/decode disaggregation work

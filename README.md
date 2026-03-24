@@ -1,6 +1,6 @@
 # Spyre vLLM Work Map
 
-Last updated: 2026-03-18
+Last updated: 2026-03-24
 
 This repository is the top-level map for Spyre + vLLM planning, validation, and
 external dependencies. It covers:
@@ -19,12 +19,16 @@ external dependencies. It covers:
   - current-stack reuse/offload status with explicit non-claims
 - [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./topics/validation-and-proof-plan/current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
   - follow-on AIU cold-vs-reuse correctness results for the current stack
+- [KV Semantic Lessons and Validation Implications (2026-03-24)](./topics/validation-and-proof-plan/kv-semantic-lessons-and-validation-implications-2026-03-24.md)
+  - scoped interpretation of the semantic failure result and the proof bar that
+    should carry forward into `vllm-spyre-next`, `torch-spyre`, and
+    prefill/decode work
 - [Current-Stack AIU KV Data](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
   - ranked benchmark data, full run registry, and the published AIU prefix-cache probe
 
 ## Current Status
 
-The current `vllm_spyre` AIU work now has two published result classes:
+The current `vllm_spyre` AIU work now has three public result classes:
 
 - positive current-stack results:
   - aligned KV reuse latency behavior on AIU
@@ -33,11 +37,17 @@ The current `vllm_spyre` AIU work now has two published result classes:
 - follow-on semantic investigation:
   - current-stack external KV offload/reload did not pass cold-vs-reuse
     correctness testing
+- validation implications:
+  - the published semantic failure is scoped to the tested staging/tensor
+    surface
+  - future public proof should emphasize token-level semantic checks, exact +
+    partial coverage, and authoritative-surface clarity
 
 Detailed notes:
 
 - [Current-Stack AIU KV Status (2026-03-17)](./topics/validation-and-proof-plan/current-stack-aiu-kv-status-2026-03-17.md)
 - [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./topics/validation-and-proof-plan/current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
+- [KV Semantic Lessons and Validation Implications (2026-03-24)](./topics/validation-and-proof-plan/kv-semantic-lessons-and-validation-implications-2026-03-24.md)
 
 At a glance:
 
@@ -46,7 +56,11 @@ At a glance:
 - same-node service-backed KV persistence is working on AIU
 - server-path prefix caching is working on AIU
 - current-stack semantic cold-vs-reuse testing did not establish semantically
-  correct external KV offload/reload
+  correct external KV offload/reload on the tested staging/tensor surface
+- the durable public lesson is methodological:
+  - semantic proof depends on the authoritative KV/runtime surface
+  - and that lesson carries forward directly to `vllm-spyre-next`,
+    `torch-spyre`, and disaggregation work
 
 [![Current-stack AIU KV summary](./topics/validation-and-proof-plan/assets/current-stack-aiu-kv-summary-2026-03-17.png)](./topics/validation-and-proof-plan/current-stack-aiu-kv-data.md)
 
@@ -57,6 +71,9 @@ Supporting detail:
 - [Current-Stack AIU KV Semantic Investigation (2026-03-18)](./topics/validation-and-proof-plan/current-stack-aiu-kv-semantic-investigation-2026-03-18.md)
   - `r17` and `r18` follow-on semantic results, including exact cold-vs-reuse
     mismatches, probe values, and code-path call sites
+- [KV Semantic Lessons and Validation Implications (2026-03-24)](./topics/validation-and-proof-plan/kv-semantic-lessons-and-validation-implications-2026-03-24.md)
+  - public-safe interpretation of what `r17`/`r18` do and do not establish
+  - why the same proof lessons apply to next-stack and substrate work
 
 ## Stack Summary
 
